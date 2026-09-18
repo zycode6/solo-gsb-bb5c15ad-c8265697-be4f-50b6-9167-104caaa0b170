@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>事件证据链审计台</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <span class="logo">⏱</span>
+    <div>
+      <h1>事件证据链审计台</h1>
+      <p class="subtitle">多来源时钟偏差校正 · 约束传播 · 可解释冲突链重建</p>
+    </div>
+  </div>
+  <div class="top-actions">
+    <label class="btn primary" id="import-label">
+      <input type="file" id="file-input" accept=".json,application/json" hidden>
+      ＋ 导入 JSON
+    </label>
+    <button class="btn" id="btn-export">⬇ 导出审计结果</button>
+    <button class="btn ghost danger" id="btn-reset" title="清空全部数据与假设">清空数据</button>
+  </div>
+</header>
+
+<div id="drop-hint" class="drop-hint hidden">松开即可导入 JSON 文件</div>
+
+<main class="layout">
+
+  <!-- 左：来源与时钟假设 -->
+  <aside class="panel col-sources">
+    <div class="panel-head">
+      <h2>来源时钟假设</h2>
+      <span class="hint">改值后点“即时重算”</span>
+    </div>
+    <div id="sources" class="sources"></div>
+    <div class="panel-foot">
+      <button class="btn primary" id="btn-recompute">⟳ 即时重算</button>
+      <button class="btn" id="btn-save">💾 保存假设</button>
+      <button class="btn ghost" id="btn-discard">放弃调整</button>
+    </div>
+  </aside>
+
+  <!-- 中：时间线 -->
+  <section class="panel col-timeline">
+    <div class="panel-head wrap">
+      <h2>重建时间线</h2>
+      <div class="stats" id="stats"></div>
+    </div>
+
+    <div class="filters">
+      <input type="search" id="f-q" placeholder="搜索摘要 / ID / 操作者…">
+      <select id="f-source"><option value="">全部来源</option></select>
+      <select id="f-type"><option value="">全部类型</option></select>
+      <label class="chk"><input type="checkbox" id="f-conflicts"> 仅冲突链</label>
+      <label class="chk"><input type="checkbox" id="f-ambiguous"> 仅时间歧义</label>
+      <button class="btn tiny ghost" id="f-clear">清除筛选</button>
+    </div>
+
+    <div class="scale-row">
+      <span id="scale-lo" class="scale-label"></span>
+      <div class="scale-track"><span>◄ 真实时间区间（置信区间）与估计时刻 ─►</span></div>
+      <span id="scale-hi" class="scale-label"></span>
+    </div>
+
+    <div id="timeline" class="timeline"></div>
+  </section>
+
+  <!-- 右：冲突与约束 -->
+  <aside class="panel col-findings">
+    <div class="panel-head">
+      <h2>冲突定位</h2>
+      <span class="badge danger" id="conflict-count">0</span>
+    </div>
+    <div id="conflicts" class="conflicts"></div>
+
+    <div class="panel-head sub">
+      <h3>时间歧义</h3>
+      <span class="badge warn" id="ambig-count">0</span>
+    </div>
+    <div id="ambiguities" class="ambiguities"></div>
+
+    <div class="panel-head sub">
+      <h3>顺序约束（<span id="edge-count">0</span>）</h3>
+    </div>
+    <div id="edges" class="edges"></div>
+  </aside>
+</main>
+
+<div id="toast" class="toast hidden"></div>
+<script src="/static/app.js"></script>
+</body>
+</html>
