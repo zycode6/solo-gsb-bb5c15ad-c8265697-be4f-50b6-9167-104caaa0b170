@@ -1,0 +1,21 @@
+services:
+  audit-console:
+    build: .
+    image: event-evidence-audit:latest
+    container_name: event-evidence-audit
+    ports:
+      - "8000:8000"
+    volumes:
+      - audit-data:/data
+    environment:
+      AUDIT_DB: /data/audit.db
+      PORT: "8000"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/state')"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  audit-data:

@@ -1,0 +1,57 @@
+{
+  "sources": [
+    {
+      "name": "srv-a",
+      "offset_seconds": 0.0,
+      "drift_ppm": 0.0,
+      "uncertainty_seconds": 1.0,
+      "trust": 0.9,
+      "monotonic": true,
+      "note": "NTP 同步良好的应用服务器"
+    },
+    {
+      "name": "srv-b",
+      "offset_seconds": -12.5,
+      "drift_ppm": 20.0,
+      "uncertainty_seconds": 3.0,
+      "trust": 0.6,
+      "monotonic": true,
+      "note": "边缘采集器，本地时钟快 12.5 秒，且有轻微正漂移"
+    }
+  ],
+  "events": [
+    {
+      "id": "a-1001",
+      "source": "srv-a",
+      "timestamp": "2026-09-18T10:00:00Z",
+      "type": "session.start",
+      "summary": "用户会话建立",
+      "before": ["a-1002", "srv-b/b-55"]
+    },
+    {
+      "id": "a-1002",
+      "source": "srv-a",
+      "timestamp": "2026-09-18T10:00:05Z",
+      "type": "session.token",
+      "summary": "下发访问令牌",
+      "jitter_seconds": 0.3,
+      "after": ["a-1001"]
+    },
+    {
+      "id": "b-55",
+      "source": "srv-b",
+      "timestamp": 1789812008000,
+      "type": "http.access",
+      "summary": "边缘代理记录到首次请求（毫秒时间戳）",
+      "jitter_seconds": 0.5
+    },
+    {
+      "id": "b-56",
+      "source": "srv-b",
+      "timestamp": "2026-09-18T10:00:21Z",
+      "type": "http.access",
+      "summary": "边缘代理记录到第二次请求",
+      "after": ["b-55"]
+    }
+  ]
+}

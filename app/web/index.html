@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>事件证据链审计台</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo">⏱</span>
+      <div>
+        <h1>事件证据链审计台</h1>
+        <p class="subtitle">多来源 JSON 事件 · 时钟偏差建模 · 约束冲突定位</p>
+      </div>
+    </div>
+    <div class="actions">
+      <button id="btn-import" class="btn">📥 导入 JSON</button>
+      <button id="btn-sample" class="btn btn-ghost">载入示例</button>
+      <button id="btn-recompute" class="btn btn-ghost">🔄 重新计算</button>
+      <button id="btn-export" class="btn btn-primary">⬇ 导出审计 JSON</button>
+      <button id="btn-reset" class="btn btn-danger-ghost">清空</button>
+    </div>
+  </header>
+
+  <section class="statbar" id="statbar"></section>
+
+  <main class="layout">
+    <!-- 左侧：来源时钟假设 -->
+    <aside class="sidebar">
+      <div class="panel">
+        <div class="panel-head">
+          <h2>来源与时钟偏差假设</h2>
+          <p class="hint">修改后立即重算整条时间线</p>
+        </div>
+        <div id="sources" class="sources"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><h2>图例</h2></div>
+        <ul class="legend">
+          <li><span class="dot forced"></span> 顺序确定</li>
+          <li><span class="dot ambiguous"></span> 区间重叠 / 存疑</li>
+          <li><span class="dot impossible"></span> 不可能顺序</li>
+          <li><span class="dot mono"></span> 同源单调假设</li>
+        </ul>
+      </div>
+    </aside>
+
+    <!-- 中间：冲突 + 时间线 -->
+    <section class="content">
+      <div class="panel conflict-panel">
+        <div class="panel-head conflict-head">
+          <h2>冲突链定位 <span id="conflict-count" class="badge badge-red">0</span></h2>
+          <div>
+            <button class="linkbtn" id="toggle-conflicts">收起</button>
+          </div>
+        </div>
+        <div id="conflicts" class="conflicts"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h2>重建时间线</h2>
+          <div class="filters">
+            <input type="search" id="f-text" placeholder="搜索 ID / 类型 / 摘要" />
+            <select id="f-source"><option value="">全部来源</option></select>
+            <select id="f-type"><option value="">全部类型</option></select>
+            <label class="check"><input type="checkbox" id="f-conflict" /> 仅看冲突</label>
+            <label class="check"><input type="checkbox" id="f-lowconf" /> 可信度 &lt; 0.5</label>
+          </div>
+        </div>
+        <div id="timeline-wrap">
+          <div id="timeline"></div>
+          <div id="empty" class="empty hidden">
+            <p>暂无事件。点击「导入 JSON」或「载入示例」开始审计。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- 导入对话框 -->
+  <div id="modal-import" class="modal-mask hidden">
+    <div class="modal">
+      <div class="modal-head">
+        <h3>导入事件记录</h3>
+        <button class="linkbtn" data-close="modal-import">✕</button>
+      </div>
+      <div class="modal-body">
+        <label class="field-label">导入模式
+          <select id="import-mode">
+            <option value="replace">替换（清空当前工作区）</option>
+            <option value="merge">合并（按 来源+事件ID 去重覆盖）</option>
+          </select>
+        </label>
+        <label class="dropzone" id="dropzone">
+          <input type="file" id="import-file" accept=".json,.ndjson,.log,application/json,text/plain" hidden />
+          <div>
+            <p class="dz-main">点击选择文件，或将 JSON / NDJSON 拖到此处</p>
+            <p class="hint">支持整包 {sources, events}、事件数组、NDJSON 逐行记录</p>
+          </div>
+        </label>
+        <details>
+          <summary class="hint">或直接粘贴 JSON 文本</summary>
+          <textarea id="import-paste" rows="6" placeholder='{"sources":[...],"events":[...]}'></textarea>
+        </details>
+        <div id="import-msg" class="import-msg"></div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn btn-ghost" data-close="modal-import">取消</button>
+        <button class="btn btn-primary" id="import-go">开始导入并重算</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 事件详情 -->
+  <div id="modal-event" class="modal-mask hidden">
+    <div class="modal modal-wide">
+      <div class="modal-head">
+        <h3 id="ev-title">事件详情</h3>
+        <button class="linkbtn" data-close="modal-event">✕</button>
+      </div>
+      <div class="modal-body" id="ev-body"></div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="/app.js"></script>
+</body>
+</html>
